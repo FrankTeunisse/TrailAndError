@@ -16,7 +16,7 @@ namespace WebApplicationHangFire2
             var config = new HttpSelfHostConfiguration("http://localhost:8080");
 
             config.Routes.MapHttpRoute(
-                "API Default", "api/{controller}/{id}",
+                "DefaultApi", "api/{controller}/{id}",
                 new { id = RouteParameter.Optional });
 
             using (HttpSelfHostServer server = new HttpSelfHostServer(config))

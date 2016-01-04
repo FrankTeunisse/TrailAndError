@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -10,32 +12,60 @@ namespace WebApplicationHangFire2.ApiControllers
 {
     public class ProductsController : ApiController
     {
-        Product[] products = new Product[]
-        {
-            new Product { Id = 1, Name = "Tomato Soup", Category = "Groceries", Price = 1 },
-            new Product { Id = 2, Name = "Yo-yo", Category = "Toys", Price = 3.75M },
-            new Product { Id = 3, Name = "Hammer", Category = "Hardware", Price = 16.99M }
-        };
+        static readonly ProductRepository repository = new ProductRepository();
 
         public IEnumerable<Product> GetAllProducts()
         {
-            return products;
+            return repository.GetAll();
         }
 
-        public Product GetProductById(int id)
+        public Product GetProduct(int id)
         {
-            var product = products.FirstOrDefault((p) => p.Id == id);
-            if (product == null)
+            Product item = repository.Get(id);
+            if (item == null)
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
+                throw new HttpResponseException(HttpStatusCode.NotFound);
             }
-            return product;
+            return item;
         }
 
         public IEnumerable<Product> GetProductsByCategory(string category)
         {
-            return products.Where(p => string.Equals(p.Category, category,
-                    StringComparison.OrdinalIgnoreCase));
+            return repository.GetAll().Where(
+                p => string.Equals(p.Category, category, StringComparison.OrdinalIgnoreCase));
         }
+
+        public HttpResponseMessage PostProduct(Product item)
+        {
+            item = repository.Add(item);
+            var response = Request.CreateResponse<Product>(HttpStatusCode.Created, item);
+
+            string uri = Url.Link("DefaultApi", new { id = item.Id });
+            response.Headers.Location = new Uri(uri);
+            return response;
+
+            //TODO: http://www.asp.net/web-api/overview/formats-and-model-binding/model-validation-in-aspnet-web-api 
+        }
+
+        public void PutProduct(int id, Product product)
+        {
+            product.Id = id;
+            if (!repository.Update(product))
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+        }
+
+        public void DeleteProduct(int id)
+        {
+            Product item = repository.Get(id);
+            if (item == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+            repository.Remove(id);
+        }
+
     }
 }

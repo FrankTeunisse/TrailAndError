@@ -17,9 +17,31 @@ namespace ClientApp
             client.BaseAddress = new Uri("http://localhost:8080");
 
             ListAllProducts();
+            fillLine();
             ListProduct(1);
+            fillLine();
             ListProducts("toys");
+            fillLine();
+            var dummiResponse = createDummy();
+            ListAllProducts();
+            fillLine();
+            if (dummiResponse.IsSuccessStatusCode)
+            {
+                Uri dummiUri = dummiResponse.Headers.Location;
+                Console.WriteLine("DummiItem succesfully created. URI={0}",dummiUri);
+                fillLine();
+                changeDummyPrice(dummiUri);
+                ListAllProducts();
+                fillLine();
+                deleteDummy(dummiUri);
+                ListAllProducts();
+            }
+            else
+            {
+                Console.WriteLine("DummiItem could not be created.");
+            }
 
+            fillLine();
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
         }
@@ -52,6 +74,7 @@ namespace ClientApp
             string query = string.Format("api/products?category={0}", category);
 
             var resp = client.GetAsync(query).Result;
+            //var resp = client.
             resp.EnsureSuccessStatusCode();
 
             var products = resp.Content.ReadAsAsync<IEnumerable<Product>>().Result;
@@ -60,5 +83,34 @@ namespace ClientApp
                 Console.WriteLine(product.Name);
             }
         }
+
+        static HttpResponseMessage createDummy()
+        {
+            // HTTP POST
+            var gizmo = new Product() { Name = "Gizmo", Price = 100, Category = "Widget" };
+            HttpResponseMessage response = client.PostAsJsonAsync("api/products", gizmo).Result;
+            return response;
+        }
+
+
+        static void changeDummyPrice(Uri dummyUri)
+        {
+            var gizmo = new Product() { Name = "Frank", Price = 1000, Category = "Widget" };
+            // HTTP PUT
+            gizmo.Price = 80;   // Update price
+            var result =  client.PutAsJsonAsync(dummyUri, gizmo).Result;
+        }
+
+        static void deleteDummy(Uri dummyUri)
+        {
+            // HTTP DELETE
+            var result = client.DeleteAsync(dummyUri).Result;
+        }
+
+        static void fillLine()
+        {
+            Console.WriteLine("____________________________________________________");
+        }
     }
 }
+
