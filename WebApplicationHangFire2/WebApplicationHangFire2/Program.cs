@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.SelfHost;
+﻿using Microsoft.Owin.Hosting;
+using System;
+using System.Net.Http;
 
 namespace WebApplicationHangFire2
 {
@@ -13,15 +9,11 @@ namespace WebApplicationHangFire2
 
         static void Main(string[] args)
         {
-            var config = new HttpSelfHostConfiguration("http://localhost:8080");
+            string baseAddress = "http://localhost:8080/";
 
-            config.Routes.MapHttpRoute(
-                "DefaultApi", "api/{controller}/{id}",
-                new { id = RouteParameter.Optional });
-
-            using (HttpSelfHostServer server = new HttpSelfHostServer(config))
+            // Start OWIN host 
+            using (WebApp.Start<Startup>(url: baseAddress))
             {
-                server.OpenAsync().Wait();
                 Console.WriteLine("Press Enter to quit.");
                 Console.ReadLine();
             }
