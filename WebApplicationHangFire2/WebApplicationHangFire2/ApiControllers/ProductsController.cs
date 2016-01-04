@@ -42,9 +42,14 @@ namespace WebApplicationHangFire2.ApiControllers
 
             string uri = Url.Link("DefaultApi", new { id = item.Id });
             response.Headers.Location = new Uri(uri);
-            return response;
 
             //TODO: http://www.asp.net/web-api/overview/formats-and-model-binding/model-validation-in-aspnet-web-api 
+
+            //Try to fire a hangfire task
+            var id = Hangfire.BackgroundJob.Enqueue(() => Console.WriteLine("Hangfire: New Product with ID {0} added to repository.", item.Id));
+            Console.WriteLine("Hangfire task created with ID: {0}",id);
+
+            return response;
         }
 
         public void PutProduct(int id, Product product)
