@@ -14,7 +14,7 @@ namespace WebApplicationHangFire2
             // Start OWIN host 
             using (WebApp.Start<Startup>(url: baseAddress))
             {
-                Console.WriteLine("Press Enter to quit.");
+                Console.WriteLine("Server started.... Press Enter to quit.");
                 Console.ReadLine();
             }
         }

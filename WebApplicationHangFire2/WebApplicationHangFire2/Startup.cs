@@ -1,5 +1,6 @@
 ﻿using Owin; 
-using System.Web.Http; 
+using System.Web.Http;
+using Hangfire;
 
 namespace WebApplicationHangFire2
 {
@@ -7,6 +8,7 @@ namespace WebApplicationHangFire2
     {
         // This code configures Web API. The Startup class is specified as a type
         // parameter in the WebApp.Start method.
+
         public void Configuration(IAppBuilder appBuilder)
         {
             // Configure Web API for self-host. 
@@ -18,6 +20,12 @@ namespace WebApplicationHangFire2
             );
 
             appBuilder.UseWebApi(config);
+
+            // Start hangfire
+            Hangfire.GlobalConfiguration.Configuration.UseSqlServerStorage("Server=.\\SQLExpress;Database=hangfire;Trusted_Connection=True;");
+
+            appBuilder.UseHangfireDashboard();
+            appBuilder.UseHangfireServer();
         }
     }
 }
