@@ -18,9 +18,9 @@ namespace ClientApp
 
             ListAllProducts();
             fillLine();
-            ListProduct(1);
+            ListProduct(2);
             fillLine();
-            ListProducts("toys");
+            ListProducts("Food");
             fillLine();
             var dummiResponse = createDummy();
             ListAllProducts();
@@ -33,8 +33,8 @@ namespace ClientApp
                 changeDummyPrice(dummiUri);
                 ListAllProducts();
                 fillLine();
-                deleteDummy(dummiUri);
-                ListAllProducts();
+                //deleteDummy(dummiUri);
+                //ListAllProducts();
             }
             else
             {
@@ -60,7 +60,7 @@ namespace ClientApp
 
         static void ListProduct(int id)
         {
-            var resp = client.GetAsync(string.Format("api/products/{0}", id)).Result;
+            HttpResponseMessage resp = client.GetAsync(string.Format("api/products/{0}", id)).Result;
             resp.EnsureSuccessStatusCode();
 
             var product = resp.Content.ReadAsAsync<Product>().Result;
