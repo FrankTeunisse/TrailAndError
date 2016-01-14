@@ -14,6 +14,7 @@ namespace DependancyTest
         static Node c = new Node("c");
         static Node d = new Node("d");
         static Node e = new Node("e");
+        static Random rnd = new Random();
 
         static void Main(string[] args)
         {
@@ -32,17 +33,41 @@ namespace DependancyTest
 
         static void execute(Node task)
         {
-            Console.WriteLine(task.name + " Executed");
-            task.Executed = true;
-            startNextTask();
+            //TODO: make changing of the state atomic, so that the task isn't started twice
+            // It will have to return true/false depending of the status already was working
+            if(task.Status == status.Qued)
+            { 
+                task.Status = status.Working;
+                Console.WriteLine("+ "+task.name + " Starting");
+                System.Threading.Thread.Sleep(rnd.Next(100, 2000));
+                Console.WriteLine("- " + task.name + " Completed");
+                task.Status = status.Completed;
+                startNextTask();
+            }
         }
 
         static void startNextTask()
         {
             var executionOrder = new List<Node>();
-            dep_resolve4(a, executionOrder);
-            if (executionOrder.Count != 0)
-                execute(executionOrder.First());
+            dep_resolve4(a, executionOrder); //Todo: select first node differently
+            foreach (var task in executionOrder)
+            {
+                if (task.CanStart)
+                {
+                    task.Status = status.Qued;
+                    new System.Threading.Thread(delegate () {
+                        execute(task);
+                    }).Start();
+                }
+            }
+
+            System.Threading.Thread.Sleep(100);
+            /*if (executionOrder.Count != 0)
+                startNextTask();
+            else
+                Console.WriteLine("*** No more tasks to execute ***");*/
+            if (executionOrder.Count == 0)
+                Console.WriteLine("*** No more tasks to execute ***");
         }
 
         static void test_dep_resolve()
@@ -75,7 +100,7 @@ namespace DependancyTest
                     dep_resolve4(edge, Resolved, Unresolved); //Add the item to our list
                 }
             }
-            if(!node.Executed)
+            if(node.Status == status.New)
                 Resolved.Add(node);
             Unresolved.Remove(node);
         }

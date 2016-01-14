@@ -9,7 +9,7 @@ namespace DependancyTest.Models
     class Node
     {
         public string name;
-        public bool Executed = false;
+        public status Status = status.New;
 
         public List<Node> Edges = new List<Node>();
 
@@ -22,5 +22,20 @@ namespace DependancyTest.Models
         {
             this.Edges.Add(newEdge);
         }
+
+        public bool CanStart
+        {
+            get
+            {
+                bool AllDependenciesReady = true;
+                foreach(var Depedency in Edges)
+                {
+                    AllDependenciesReady = AllDependenciesReady && (Depedency.Status == status.Completed);
+                }
+                return AllDependenciesReady;
+            }
+        }
     }
+
+    enum status  {New, Qued, Working, Completed}
 }
