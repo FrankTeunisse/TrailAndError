@@ -61,11 +61,6 @@ namespace DependancyTest
                 }
             }
 
-            System.Threading.Thread.Sleep(100);
-            /*if (executionOrder.Count != 0)
-                startNextTask();
-            else
-                Console.WriteLine("*** No more tasks to execute ***");*/
             if (executionOrder.Count == 0)
                 Console.WriteLine("*** No more tasks to execute ***");
         }
@@ -101,7 +96,7 @@ namespace DependancyTest
                 }
             }
             if(node.Status == status.New)
-                Resolved.Add(node);
+                Resolved.Add(node); //Only return nodes that yet have to be queued and executed
             Unresolved.Remove(node);
         }
     }
